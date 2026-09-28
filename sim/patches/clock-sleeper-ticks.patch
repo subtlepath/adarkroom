@@ -1,0 +1,34 @@
+--- a/tools/simulator/core/Machine.cpp
++++ b/tools/simulator/core/Machine.cpp
+@@ -130,7 +130,20 @@
+   cv_.notify_all();
+ 
+   while (!shutdown_.load() && now_.load() < target) {
+-    cv_.wait_for(lock, std::chrono::milliseconds(5));
++    // In realtime the sleeper keeps its own appointment: it waits the wall time its remaining
++    // simulated time is worth and then advances the clock itself. Left to the daemon's loop a
++    // sleep of any length ends on that loop's next pass — 2 ms away headless, a whole vsync with
++    // the window open — and a driver that streams a frame a row at a time (a thousand 50 µs
++    // transfers) turned one page in twenty seconds.
++    if (mode_ == ClockMode::Realtime && !paused_.load() && rate_ > 0.0) {
++      const double wallUs = static_cast<double>(target - now_.load()) / rate_;
++      cv_.wait_for(lock, std::chrono::microseconds(wallUs > 5000.0 ? 5000 : static_cast<int64_t>(wallUs) + 1));
++      lock.unlock();
++      tick();
++      lock.lock();
++    } else {
++      cv_.wait_for(lock, std::chrono::milliseconds(5));
++    }
+   }
+ 
+   waiters_.erase(it);
+@@ -186,8 +199,7 @@
+     target = stepDeadline_;
+     stepping_ = false;
+   }
+-  lock.unlock();
+-  advanceTo(target);
++  advanceTo(target);  // under the lock: sleepers tick too now, and two of them must not store out of order
+   return now_.load() > before;
+ }
+ 

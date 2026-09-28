@@ -1,0 +1,47 @@
+--- a/tools/simulator/platform/SdFat.h	2026-09-21 11:02:47
++++ b/tools/simulator/platform/SdFat.h	2026-09-21 11:02:47
+@@ -53,6 +53,8 @@
+ // Sector I/O interface. The simulator has no sector-addressable card behind the
+ // host directory, so the volume hands back nullptr and callers take their
+ // "raw access unavailable" path.
++using Sector_t = uint32_t;  // SdFat's sector index type, which block-device users name
++
+ class FsBlockDeviceInterface {
+  public:
+   virtual ~FsBlockDeviceInterface() = default;
+@@ -164,7 +166,34 @@
+     return fsim_sd_present() != 0;
+   }
+   void end() {}
+-  FsBlockDeviceInterface* card() { return nullptr; }
++  // A card to lend: a megabyte of sectors in RAM. It is not the host directory (a bundle's files have no
++  // sectors), but it is a real FsBlockDeviceInterface, which is what lets a firmware's "lend the card
++  // over USB" flow run here instead of always taking its "raw access unavailable" path.
++  FsBlockDeviceInterface* card() {
++    class RamCard : public FsBlockDeviceInterface {
++     public:
++      bool readSector(uint32_t s, uint8_t* dst) override { return readSectors(s, dst, 1); }
++      bool writeSector(uint32_t s, const uint8_t* src) override { return writeSectors(s, src, 1); }
++      bool readSectors(uint32_t s, uint8_t* dst, size_t n) override {
++        if (s + n > kSectors) return false;
++        memcpy(dst, _data + s * 512u, n * 512u);
++        return true;
++      }
++      bool writeSectors(uint32_t s, const uint8_t* src, size_t n) override {
++        if (s + n > kSectors) return false;
++        memcpy(_data + s * 512u, src, n * 512u);
++        return true;
++      }
++      uint32_t sectorCount() override { return kSectors; }
++      bool syncDevice() override { return true; }
++
++     private:
++      enum : uint32_t { kSectors = 2048 };
++      uint8_t _data[kSectors * 512u] = {};
++    };
++    static RamCard card;
++    return fsim_sd_present() ? &card : nullptr;
++  }
+   uint8_t sdErrorCode() const { return fsim_sd_present() ? 0 : 0x01; }
+   uint8_t sdErrorData() const { return 0; }
+   void errorHalt(Print&) {}

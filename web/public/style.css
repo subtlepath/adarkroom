@@ -1,0 +1,252 @@
+/* A Dark Room for Xteink: the browser game's own look (css/main.css and css/dark.css), stretched
+   to a page that scrolls. */
+
+:root {
+  --bg: #fff;
+  --fg: #000;
+  --muted: #666;
+  --faint: #b2b2b2;
+  --cool: #ddd;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #272823;
+    --fg: #eee;
+    --muted: #9a9b95;
+    --faint: #5d5e58;
+    --cool: #45463f;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #272823;
+  --fg: #eee;
+  --muted: #9a9b95;
+  --faint: #5d5e58;
+  --cool: #45463f;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 17px;
+  line-height: 1.35;
+  transition: background-color 0.4s, color 0.4s;
+}
+
+a { color: inherit; text-decoration: none; }
+a:hover, a:focus-visible { text-decoration: underline; }
+:focus-visible { outline: 1px dotted var(--fg); outline-offset: 3px; }
+em, i { font-style: italic; }
+code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85em; }
+small { color: var(--muted); }
+
+/* ---- the frame: the log on the left, as the game keeps it --------------------------------- */
+
+#wrapper {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 700px);
+  gap: 20px;
+  justify-content: center;
+  padding: 20px 20px 80px;
+}
+
+#notifications {
+  position: sticky;
+  top: 20px;
+  align-self: start;
+  height: min(700px, calc(100vh - 40px));
+  overflow: hidden;
+}
+#log {
+  height: 100%;
+  -webkit-mask-image: linear-gradient(#000 0%, #000 15%, transparent 100%);
+  mask-image: linear-gradient(#000 0%, #000 15%, transparent 100%);
+}
+#log p { margin: 0 0 10px; animation: arrive 0.5s ease-out; }
+@keyframes arrive { from { opacity: 0; } }
+
+main { min-width: 0; }
+
+#header {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 4px;
+  padding-bottom: 6px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--fg);
+  font-size: 17px;
+}
+#header a { padding: 0 10px; border-left: 1px solid var(--fg); }
+#header a:first-child { padding-left: 0; border-left: none; }
+#header a.selected { text-decoration: underline; }
+
+section { margin-bottom: 44px; scroll-margin-top: 20px; }
+h2 {
+  font-weight: normal;
+  font-size: 22px;
+  margin: 0 0 12px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--fg);
+}
+.lede { font-size: 19px; margin: 0 0 22px; }
+.aside { color: var(--muted); font-size: 15px; }
+ul { padding-left: 1.1em; margin: 0 0 12px; }
+li { margin-bottom: 6px; }
+
+/* ---- the buttons: a black border, underlined on hover, a grey bar behind -------------------- */
+
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+
+.button {
+  position: relative;
+  isolation: isolate;
+  display: inline-block;
+  width: 130px;
+  padding: 5px 10px;
+  border: 1px solid var(--fg);
+  text-align: center;
+  user-select: none;
+}
+.button:hover:not(:disabled) { text-decoration: underline; }
+.button:disabled { cursor: default; border-color: var(--faint); color: var(--faint); }
+.button[aria-checked="true"] { background: var(--fg); color: var(--bg); }
+.button[aria-checked="true"]:disabled { border-color: var(--fg); color: var(--bg); opacity: 0.6; }
+
+.link { color: var(--muted); }
+.link:hover:not(:disabled) { text-decoration: underline; color: var(--fg); }
+.link:disabled { color: var(--faint); cursor: default; }
+
+/* ---- the choices, in the game's bordered, legended boxes --------------------------------- */
+
+fieldset {
+  border: 1px solid var(--fg);
+  margin: 0 0 18px;
+  padding: 8px 10px 10px;
+  min-width: 0;
+}
+legend { padding: 0 4px; margin-left: -4px; }
+
+.devices { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.choice { display: flex; flex-direction: column; gap: 4px; }
+.choice .button { width: 100%; }
+.choice small { font-size: 14px; line-height: 1.25; }
+
+.row {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 5px 0;
+  text-align: left;
+}
+.row + .row { border-top: 1px dotted var(--faint); }
+.row small { display: block; font-size: 14px; }
+.row i { flex: none; min-width: 2em; text-align: right; }
+.row:hover:not(:disabled) > span { text-decoration: underline; }
+.row:disabled { cursor: default; color: var(--faint); }
+
+.go { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin: 26px 0 10px; }
+#flash { width: 220px; font-size: 20px; padding: 8px 10px; }
+#flash .bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  z-index: -1;
+  background: var(--cool);
+  transition: width 0.25s linear;
+}
+#flash .label { position: relative; }
+.links { display: flex; gap: 18px; margin: 0; font-size: 15px; }
+.links a { color: var(--muted); }
+
+/* the device's footer: italic on the left, the page on the right */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 12px;
+  padding-top: 5px;
+  border-top: 1px solid var(--fg);
+  font-size: 15px;
+}
+#built { color: var(--muted); white-space: nowrap; }
+
+details { font-size: 14px; color: var(--muted); }
+summary { cursor: pointer; }
+#terminal {
+  max-height: 16em;
+  overflow: auto;
+  margin: 8px 0 0;
+  padding: 8px;
+  border: 1px solid var(--faint);
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+#terminal:empty::before { content: "nothing yet."; font-style: italic; }
+
+/* ---- the glass ---------------------------------------------------------------------------- */
+
+.shots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px 18px;
+  align-items: end;
+  margin: 18px 0;
+}
+figure { margin: 0; min-width: 0; }
+figure.full { grid-column: 1 / -1; }
+.glass {
+  display: block;
+  padding: 7px;
+  border: 1px solid var(--fg);
+  border-radius: 3px;
+  background: #fff;
+}
+.glass img { display: block; width: 100%; height: auto; }
+figcaption { margin-top: 6px; font-size: 15px; }
+figcaption span { color: var(--muted); font-style: italic; }
+/* lights off, as the device's own menu does it: the glass white on black */
+[data-theme="dark"] .glass { background: #000; }
+[data-theme="dark"] .glass img { filter: invert(1); }
+
+/* ---- the menu, bottom right, as the game's ------------------------------------------------ */
+
+.menu {
+  position: fixed;
+  right: 14px;
+  bottom: 10px;
+  display: flex;
+  gap: 20px;
+  padding: 4px 6px;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 16px;
+}
+.menu .link, .menu a { color: var(--muted); }
+
+/* ---- narrow: one column, the log a short strip above --------------------------------------- */
+
+@media (max-width: 760px) {
+  #wrapper { grid-template-columns: minmax(0, 1fr); gap: 0; padding: 16px 16px 72px; }
+  #notifications { position: static; height: 5.5em; margin-bottom: 12px; order: 0; }
+  #log { -webkit-mask-image: linear-gradient(#000 0%, #000 30%, transparent 100%); mask-image: linear-gradient(#000 0%, #000 30%, transparent 100%); }
+  #header { column-gap: 14px; }
+  #header a, #header a:first-child { padding: 0; border-left: none; }
+  .shots { gap: 18px 12px; }
+  figure.wide { grid-column: 1 / -1; }
+  .glass { padding: 4px; }
+  .menu { left: 0; right: 0; justify-content: flex-end; padding: 8px 16px; border-top: 1px solid var(--faint); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

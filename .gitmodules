@@ -1,0 +1,6 @@
+[submodule "freeink-sdk"]
+	path = freeink-sdk
+	url = https://github.com/subtlepath/freeink-sdk.git
+[submodule "game"]
+	path = game
+	url = https://github.com/doublespeakgames/adarkroom.git

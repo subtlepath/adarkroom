@@ -1,0 +1,12 @@
+--- a/tools/simulator/platform/Wire.h
++++ b/tools/simulator/platform/Wire.h
+@@ -68,6 +68,9 @@
+     return static_cast<uint8_t>(_rx.size());
+   }
+   uint8_t requestFrom(int addr, int len) { return requestFrom(static_cast<uint8_t>(addr), static_cast<size_t>(len)); }
++  // Arduino's own signature, which the SDK's gauge drivers call (M5Pm1.h: `requestFrom(ADDR, len)`
++  // with two uint8_t): without it the call is ambiguous between the two above.
++  uint8_t requestFrom(uint8_t addr, uint8_t len) { return requestFrom(addr, static_cast<size_t>(len)); }
+ 
+   int available() { return static_cast<int>(_rx.size() - _rxPos); }
+ 

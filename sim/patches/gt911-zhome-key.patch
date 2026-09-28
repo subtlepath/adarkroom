@@ -1,0 +1,13 @@
+--- a/tools/simulator/core/I2cDevices.cpp
++++ b/tools/simulator/core/I2cDevices.cpp
+@@ -68,6 +68,10 @@
+     if (reg == 0x814E) {
+       if (touch.down) {
+         releasePending_ = true;
++        // The module's capacitive Home key sits below the glass and is reported as a status bit,
++        // with no contact. There is no key for it in the simulator, so a touch far below the panel
++        // (y >= 10000, e.g. `tap --x 0 --y 10000`) stands for a finger on it.
++        if (touch.y >= 10000) return 0x80 | 0x10;
+         return 0x80 | 0x01;  // data ready, one contact
+       }
+       return releasePending_ ? 0x80 : 0x00;  // data ready with no contacts: the lift

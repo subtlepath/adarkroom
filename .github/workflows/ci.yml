@@ -1,0 +1,41 @@
+# The host tests on every push, and the three firmwares built (kept as an artifact).
+name: ci
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: the generated tables match the game and the fonts
+        run: make data && git diff --exit-code src/generated
+      - name: host tests
+        run: make test
+
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache@v4
+        with:
+          path: build/pio-core
+          key: pio-${{ runner.os }}-${{ hashFiles('platformio.ini') }}
+      - name: firmware
+        run: make firmware
+      - uses: actions/upload-artifact@v4
+        with:
+          name: adarkroom-firmware
+          path: build/adarkroom-*.bin

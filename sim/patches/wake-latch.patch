@@ -1,0 +1,41 @@
+--- a/tools/simulator/core/Machine.cpp
++++ b/tools/simulator/core/Machine.cpp
+@@ -557,6 +557,12 @@
+   std::lock_guard<std::mutex> lock(mutex_);
+   buttons_[index] = pressed;
+   applyButtonsToPins();
++  // A sleeping chip wakes on the edge however short the press. shouldWake() is polled from the
++  // daemon's loop, and a scripted press at a high clock rate can be over between two polls.
++  if ((powerState_ == PowerState::DeepSleep || powerState_ == PowerState::LightSleep) && wakePin_ >= 0 &&
++      gpio_.read(wakePin_) == wakeLevel_) {
++    wakeLatched_ = true;
++  }
+ }
+ 
+ void Machine::applyButtonsToPins() {
+@@ -740,13 +746,14 @@
+   if (powerState_ != PowerState::DeepSleep && powerState_ != PowerState::LightSleep) return false;
+   if (sleepUntilUs_ != 0 && clock_.nowUs() >= sleepUntilUs_) return true;
+   if (wakePin_ >= 0 && gpio_.read(wakePin_) == wakeLevel_) return true;
+-  return false;
++  return wakeLatched_;
+ }
+ 
+ void Machine::wakeNow(int cause) {
+   std::lock_guard<std::mutex> lock(mutex_);
+   wakeCause_ = cause;
+   powerState_ = PowerState::Running;
++  wakeLatched_ = false;
+   teardown_ = true;
+ }
+ 
+--- a/tools/simulator/core/Machine.h
++++ b/tools/simulator/core/Machine.h
+@@ -404,6 +404,7 @@
+   uint64_t sleepUntilUs_ = 0;
+   int wakePin_ = -1;
+   int wakeLevel_ = 0;
++  bool wakeLatched_ = false;  // the wake pin was seen at its level while asleep, however briefly
+   int wakeCause_ = 0;
+   std::atomic<bool> teardown_{false};
+ 

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Dark Room for Xteink</title>
+<meta name="description" content="A Dark Room, the whole game, as firmware for the Xteink X4 Pro, X4 Classic, X3 and X4 e-paper readers. Flash it from the browser.">
+<meta property="og:title" content="A Dark Room for Xteink">
+<meta property="og:description" content="The whole game, as firmware for the Xteink e-paper readers. Flash it from the browser.">
+<meta property="og:image" content="shots/room.png">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<script>
+  // lights before the first paint, so the page does not flash white in the dark
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('lights'); } catch (e) {}
+    var on = saved ? saved === 'on' : !matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.dataset.theme = on ? 'light' : 'dark';
+  })();
+</script>
+<script type="module" src="flash.js"></script>
+</head>
+<body>
+<div id="wrapper">
+
+  <aside id="notifications" aria-label="what happened">
+    <div id="log" aria-live="polite">
+      <p>the fire is dead.</p>
+      <p>the room is freezing.</p>
+    </div>
+  </aside>
+
+  <main>
+    <nav id="header">
+      <a href="#" class="selected">A Dark Room</a>
+      <a href="#glass">the glass</a>
+      <a href="#before">before you start</a>
+      <a href="#back">the way back</a>
+      <a href="#source">the source</a>
+    </nav>
+
+    <section id="flasher">
+      <p class="lede">
+        the room and its fire, the stranger who builds, the village, the dusty path, the barren world,
+        the battleship and the old starship. the whole of <em>A Dark Room</em>, as firmware for the Xteink
+        e-paper readers, redrawn for glass that holds its image without power.
+      </p>
+
+      <fieldset>
+        <legend>device:</legend>
+        <div class="devices" role="radiogroup" aria-label="device">
+          <div class="choice">
+            <button class="button" role="radio" aria-checked="false" data-device="x4pro">X4 Pro</button>
+            <small>touch, the Home key, a frontlight</small>
+          </div>
+          <div class="choice">
+            <button class="button" role="radio" aria-checked="false" data-device="x4c">X4 Classic</button>
+            <small>the X4 Pro's body; seven keys, no touch</small>
+          </div>
+          <div class="choice">
+            <button class="button" role="radio" aria-checked="false" data-device="x3">X3</button>
+            <small>seven keys, 792 × 528 glass</small>
+          </div>
+          <div class="choice">
+            <button class="button" role="radio" aria-checked="false" data-device="x4">X4</button>
+            <small>the first X4, keys down its side</small>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>options:</legend>
+        <button class="row" role="switch" aria-checked="true" data-option="keep">
+          <span>keep the save <small>an update goes on from where the game was</small></span><i>on</i>
+        </button>
+        <button class="row" role="switch" aria-checked="false" data-option="backup">
+          <span>save what is on it first <small>all 16 MB, to a file; a few minutes more</small></span><i>off</i>
+        </button>
+      </fieldset>
+
+      <div class="go">
+        <button id="flash" class="button" disabled><span class="bar"></span><span class="label">flash</span></button>
+        <p class="links">
+          <a id="download" href="#" download hidden>the image.</a>
+          <button id="restore" class="link" type="button">write a backup back…</button>
+          <input id="file" type="file" accept=".bin,application/octet-stream" hidden>
+        </p>
+      </div>
+
+      <p class="footer"><em id="status">&nbsp;</em><span id="built"></span></p>
+
+      <details>
+        <summary>the flasher's own words</summary>
+        <pre id="terminal"></pre>
+      </details>
+    </section>
+
+    <section id="glass">
+      <h2>the glass</h2>
+      <p>
+        every timer the browser ran (the fire cooling, the builder, the traders, a fight) is part of the
+        save, so the world waits while the device sleeps, and goes on when it wakes. a frame reaches the
+        glass only when something on it changes. these are the firmware's own screens, drawn by its tests.
+      </p>
+      <div class="shots">
+        <figure class="tall"><span class="glass"><img src="shots/room.png" width="480" height="800" alt="A Firelit Room: a stoke fire button, the stores, and the log fading in dithered grey"></span><figcaption>a firelit room. <span>X4 Pro, held tall</span></figcaption></figure>
+        <figure class="tall"><span class="glass"><img src="shots/sleep.png" width="480" height="800" alt="The sleep screen: A Dark Room, the room's state, and arrows pointing at each of the device's keys with what it does"></span><figcaption>asleep, the glass points at the keys. <span>X4 Classic</span></figcaption></figure>
+        <figure class="wide full"><span class="glass"><img src="shots/village.png" width="792" height="528" alt="A Raucous Village: gather wood and check traps, and the workers with their counts"></span><figcaption>a raucous village. <span>X3, held wide</span></figcaption></figure>
+        <figure class="wide"><span class="glass"><img src="shots/world.png" width="792" height="528" alt="A Barren World: the wanderer on the map near two old houses, with water and hp"></span><figcaption>a barren world. <span>X3</span></figcaption></figure>
+        <figure class="wide"><span class="glass"><img src="shots/space.png" width="792" height="528" alt="The Troposphere: the ship among asteroids on a dithered sky"></span><figcaption>the ascent. <span>X3</span></figcaption></figure>
+      </div>
+      <p>
+        on the keys, the side keys go between places, the four below the glass move the focus and press
+        it, and Back is the menu. on the X4 Pro, touch what you would click; a long press shows what a
+        thing costs. the menu keeps the browser's lights and hyper, and adds the pace of fights, when to
+        sleep, and which way up to hold it.
+      </p>
+    </section>
+
+    <section id="before">
+      <h2>before you start</h2>
+      <ul>
+        <li>a computer with Chrome, Edge or another Chromium browser. Firefox, Safari and phones cannot reach a device over USB.</li>
+        <li>a USB-C cable that carries data, not only charge.</li>
+        <li>wake the device, plug it in, then press flash and choose it in the list the browser shows (it may be called <em>USB JTAG/serial debug unit</em>).</li>
+        <li>this replaces the reader on the device with the game. the books on its SD card are not touched.</li>
+        <li>before anything is written, the chip is asked what it is: the X4 Pro and X4 Classic are ESP32-S3s, the X3 and the first X4 are ESP32-C3s. choosing the wrong family stops there.</li>
+        <li>to go back to the reader it came with, turn on <em>save what is on it first</em>: the page reads the whole flash to a file before it writes.</li>
+      </ul>
+      <p class="aside">
+        if the device is not in the list, or does not answer: wake it again (a sleeping device leaves
+        the USB bus), try another cable or port, and close anything else holding the port, such as a
+        serial monitor or another tab.
+      </p>
+    </section>
+
+    <section id="back">
+      <h2>the way back</h2>
+      <ul>
+        <li><strong>from a backup.</strong> <em>write a backup back…</em>, beside the flash button, writes a file this page saved (or any whole-flash image) over everything, from 0x0.</li>
+        <li><strong>without a computer.</strong> put another firmware on the SD card as <code>/update.bin</code>, then hold Up and Down while pressing Power to wake it: the game's recovery boot flashes that file.</li>
+        <li><strong>by hand.</strong> <code>esptool.py write_flash 0x0 backup.bin</code>, or any other firmware's own installer.</li>
+      </ul>
+    </section>
+
+    <section id="source">
+      <h2>the source</h2>
+      <p>
+        the game is doublespeak games' <a href="https://github.com/doublespeakgames/adarkroom">A Dark Room</a>, its
+        text, costs, odds and timings kept as they are; the port to C++, on the
+        <a href="https://github.com/subtlepath/freeink-sdk">FreeInk SDK</a>, is at
+        <a href="https://github.com/subtlepath/adarkroom">github.com/subtlepath/adarkroom</a>, with how to build it, test
+        it and flash it by hand.
+      </p>
+      <p class="aside">
+        A Dark Room © doublespeak games, under the Mozilla Public License 2.0, as is this port. Times ©
+        Adobe Systems and Digital Equipment Corporation; UW ttyp0 © Uwe Waldmann. Flashing by Espressif's
+        <a href="https://github.com/espressif/esptool-js">esptool-js</a> (Apache 2.0). Not made by, or
+        affiliated with, Xteink.
+      </p>
+    </section>
+  </main>
+
+  <nav class="menu" aria-label="menu">
+    <button id="lights" class="link" type="button">lights off.</button>
+    <a href="https://github.com/subtlepath/adarkroom">github.</a>
+    <a href="https://adarkroom.doublespeakgames.com">the original.</a>
+  </nav>
+</div>
+</body>
+</html>

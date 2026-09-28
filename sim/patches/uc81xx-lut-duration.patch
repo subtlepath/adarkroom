@@ -1,0 +1,55 @@
+--- a/tools/simulator/core/Panel.cpp
++++ b/tools/simulator/core/Panel.cpp
+@@ -19,6 +19,9 @@
+ constexpr uint32_t kFullRefreshMs = 1600;
+ constexpr uint32_t kPartialRefreshMs = 800;
+ constexpr uint32_t kFastRefreshMs = 320;
++// One frame of a UC81xx register waveform, at the 50 Hz these panels are clocked for. Like the
++// durations above it is the nominal figure, not a per-unit measurement.
++constexpr uint32_t kUcFrameMs = 20;
+ 
+ const char* ssd1677CommandName(uint8_t cmd) {
+   switch (cmd) {
+@@ -324,6 +327,7 @@
+     streaming_ = false;
+     partial_ = false;
+     readIndex_ = 0;
++    lutFrames_ = 0;
+   }
+ 
+  private:
+@@ -361,6 +365,13 @@
+           partialX0_ = std::min(x0, x1);
+           partialY0_ = std::min(y0, y1);
+           panel_.setRamWindow(partialX0_, partialY0_, std::max(x0, x1), std::max(y0, y1));
++        }
++        break;
++      case 0x20:  // LUTC — the VCOM table times the waveform: six-byte groups of
++        // {levels, four phase lengths in frames, repeat count}
++        lutFrames_ = 0;
++        for (size_t g = 0; g + 6 <= args_.size(); g += 6) {
++          lutFrames_ += static_cast<uint32_t>(args_[g + 1] + args_[g + 2] + args_[g + 3] + args_[g + 4]) * args_[g + 5];
+         }
+         break;
+       default:
+@@ -372,7 +383,11 @@
+   void runRefresh() {
+     panel_.recordEvent(0x12, nullptr, 0, "DRF");
+     const RefreshKind kind = partial_ ? RefreshKind::Partial : RefreshKind::Full;
+-    panel_.startRefresh(kind, partial_ ? kPartialRefreshMs : kFullRefreshMs);
++    // A driver that loads its own waveform decides how long BUSY is held: the X3's page-turn
++    // bank runs 19 frames, its full bank 62. Charging both the same 1600 ms made every turn as
++    // slow as a full refresh. With no register LUT loaded the nominal durations stand.
++    const uint32_t nominal = partial_ ? kPartialRefreshMs : kFullRefreshMs;
++    panel_.startRefresh(kind, lutFrames_ ? lutFrames_ * kUcFrameMs : nominal);
+   }
+ 
+   Panel& panel_;
+@@ -387,6 +402,7 @@
+   int partialX0_ = 0, partialY0_ = 0;
+   int readIndex_ = 0;
+   uint8_t lutVersion_ = 0x02;
++  uint32_t lutFrames_ = 0;  // length of the register waveform last loaded; 0 = none, the OTP one runs
+ };
+ 
+ }  // namespace

@@ -1,0 +1,24 @@
+{
+  "version": null,
+  "built": "2026-09-28",
+  "firmware": {
+    "x4pro": {
+      "file": "adarkroom-x4pro-factory.bin",
+      "chip": "ESP32-S3",
+      "size": 844416,
+      "sha256": "5f4291dc38eedc23d380cb71533f33fffe5c15dc94645f79c580a59c780f5f21"
+    },
+    "x4c": {
+      "file": "adarkroom-x4c-factory.bin",
+      "chip": "ESP32-S3",
+      "size": 832832,
+      "sha256": "de5b0b9ff9670d3aba33bc120a4e17cda54fcf037ce33ab55294b09b53ee1ec6"
+    },
+    "x3": {
+      "file": "adarkroom-x3-factory.bin",
+      "chip": "ESP32-C3",
+      "size": 809136,
+      "sha256": "ad16e8d1ea893d46de5f7556c316db164018a05451b9a55e0783bc6d2aa5de08"
+    }
+  }
+}
